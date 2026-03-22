@@ -17,8 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-stable@stable
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
@@ -37,7 +39,6 @@ jobs:
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: false
           prerelease: false
-          args: '--target x86_64-pc-windows-msvc'
 
   build-updater-assets:
     needs: release
