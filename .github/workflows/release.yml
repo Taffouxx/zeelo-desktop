@@ -65,12 +65,7 @@ jobs:
 
       - name: List bundle files
         run: |
-          echo "=== Bundle directory ==="
-          ls -la src-tauri/target/release/bundle/ 2>/dev/null || echo "No bundle directory"
-          echo "=== MSI directory ==="
-          ls -la src-tauri/target/release/bundle/msi/ 2>/dev/null || echo "No msi directory"
-          echo "=== NSIS directory ==="
-          ls -la src-tauri/target/release/bundle/nsis/ 2>/dev/null || echo "No nsis directory"
+          Get-ChildItem -Path "src-tauri/target/release/bundle" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
