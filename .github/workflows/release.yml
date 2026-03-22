@@ -50,10 +50,18 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
+      - name: Debug key
+        run: |
+          echo "Key length: $env:TAURI_SIGNING_PRIVATE_KEY.Length"
+          echo "Key start: $env:TAURI_SIGNING_PRIVATE_KEY.Substring(0, [Math]::Min(50, $env:TAURI_SIGNING_PRIVATE_KEY.Length))"
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+
       - name: Build Tauri app
         run: npm run tauri -- build
         env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_PRIVATE_KEY_PASSWORD }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
