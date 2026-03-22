@@ -39,11 +39,12 @@ jobs:
 
       - name: Build frontend
         run: |
-          cd zeelo/packages/client
+          cd zeelo
           corepack enable
           corepack prepare pnpm@9 --activate
           pnpm install
-          pnpm run build
+          pnpm --filter client exec lingui compile --typescript
+          pnpm --filter client build
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
