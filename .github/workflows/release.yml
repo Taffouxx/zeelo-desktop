@@ -1,0 +1,146 @@
+name: Desktop Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup pnpm for frontend
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Build frontend
+        run: |
+          cd zeelo
+          corepack enable
+          corepack prepare pnpm@9 --activate
+          pnpm install
+          pnpm --filter stoat.js build
+          pnpm --filter solid-livekit-components build
+          pnpm --filter @lingui-solid/babel-plugin-lingui-macro build
+          pnpm --filter @lingui-solid/babel-plugin-extract-messages build
+          pnpm --filter client exec lingui compile --typescript
+          pnpm --filter client exec node scripts/copyAssets.mjs
+          pnpm --filter client exec panda codegen
+          pnpm --filter client build
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Build Tauri app
+        run: npm run tauri -- build
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+      - name: List ALL bundle files
+        run: |
+          Write-Host "=== ALL FILES IN BUNDLE ==="
+          Get-ChildItem -Path "src-tauri/target/release/bundle" -Recurse -File | ForEach-Object { Write-Host $_.FullName }
+          Write-Host "=== END OF FILES ==="
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: src-tauri/target/release/bundle/**
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-updater-assets:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Download MSI from release
+        id: download
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            const version = process.env.GITHUB_REF.replace('refs/tags/v', '');
+            const release = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: `v${version}`
+            });
+            
+            const msiAsset = release.data.assets.find(a => a.name.endsWith('.msi'));
+            if (!msiAsset) {
+              core.setFailed('No .msi file found in release');
+              return;
+            }
+            
+            const msiResponse = await github.rest.repos.getReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: msiAsset.id,
+              headers: { Accept: 'application/octet-stream' }
+            });
+            
+            fs.writeFileSync('zeelo-desktop.msi', Buffer.from(msiResponse.data));
+            core.setOutput('msi_name', msiAsset.name);
+
+      - name: Upload signature placeholder to release
+        if: env.TAURI_PRIVATE_KEY != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const version = process.env.GITHUB_REF.replace('refs/tags/v', '');
+            
+            const release = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: `v${version}`
+            });
+            
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.data.id,
+              name: 'zeelo-desktop.msi.sig',
+              data: 'SIGNATURE_WILL_BE_ADDED',
+              headers: { 'Content-Type': 'text/plain' }
+            });
+        env:
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}

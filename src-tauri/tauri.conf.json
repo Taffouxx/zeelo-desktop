@@ -1,12 +1,12 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Zeelo Desktop",
-  "version": "0.2.0",
+  "version": "0.3.7",
   "identifier": "com.zeelo.desktop",
   "build": {
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
-    "frontendDist": "../../zeelo/packages/client/dist",
+    "frontendDist": "../zeelo/packages/client/dist",
     "devUrl": "http://localhost:5173"
   },
   "app": {
@@ -43,15 +43,18 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "publisher": "Zeelo",
+    "shortDescription": "Zeelo Desktop Client",
+    "longDescription": "Desktop client for Zeelo chat platform"
   },
   "plugins": {
     "updater": {
       "active": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzOEI0QzRGNjI1OTYwMjYKUldRbVlGbGlUMHlMMDN6UU5xQ09RKzBZQWRTSlljQjNQMXdjbEVpQUJPQ1BUTEQvQkZvUnU4eXMK",
       "endpoints": [
         "https://chat.zeelo.fun/api/update/{{target}}/{{current_version}}"
-      ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzOEI0QzRGNjI1OTYwMjYKUldRbVlGbGlUMHlMMDN6UU5xQ09RKzBZQWRTSlljQjNQMXdjbEVpQUJPQ1BUTEQvQkZvUnU4eXMK"
+      ]
     }
   }
 }
