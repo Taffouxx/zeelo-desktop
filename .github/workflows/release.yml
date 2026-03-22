@@ -43,7 +43,13 @@ jobs:
           corepack enable
           corepack prepare pnpm@9 --activate
           pnpm install
+          pnpm --filter stoat.js build
+          pnpm --filter solid-livekit-components build
+          pnpm --filter @lingui-solid/babel-plugin-lingui-macro build
+          pnpm --filter @lingui-solid/babel-plugin-extract-messages build
           pnpm --filter client exec lingui compile --typescript
+          pnpm --filter client exec node scripts/copyAssets.mjs
+          pnpm --filter client exec panda codegen
           pnpm --filter client build
 
       - name: Rust cache
