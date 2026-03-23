@@ -51,7 +51,7 @@
   "plugins": {
     "updater": {
       "active": true,
-      "pubkey": "RWS69+mWWWNB4nc+e7eklGOjUW5ZIF8OafHANOyjAI4HobRbLDmGFhP99",
+      "pubkey": "RWS69+mWWNB4nc+e7eklGOjUW5ZIF8OafHANOyjAI4HobRbLDmGFhP99",
       "endpoints": [
         "https://chat.zeelo.fun/api/update/{{target}}/{{current_version}}"
       ]
