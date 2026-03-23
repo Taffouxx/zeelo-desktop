@@ -74,10 +74,10 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: ${{ github.ref_name }}
-          releaseBody: "See the assets to download this version and install."
           releaseDraft: false
           prerelease: false
           tauriScript: npm run tauri
+          args: --verbose
 
       - name: List bundle files
         run: |
