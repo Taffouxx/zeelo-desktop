@@ -52,10 +52,10 @@ jobs:
 
       - name: Debug key
         run: |
-          echo "Key length: $env:TAURI_SIGNING_PRIVATE_KEY.Length"
-          echo "Key start: $env:TAURI_SIGNING_PRIVATE_KEY.Substring(0, [Math]::Min(50, $env:TAURI_SIGNING_PRIVATE_KEY.Length))"
+          Write-Host "Key length: $($env:TAURI_SIGNING_PRIVATE_KEY.Length)"
+          Write-Host "Key start: $($env:TAURI_SIGNING_PRIVATE_KEY.Substring(0, [Math]::Min(20, $env:TAURI_SIGNING_PRIVATE_KEY.Length)))"
         env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
       - name: Build Tauri app
         run: npm run tauri -- build
