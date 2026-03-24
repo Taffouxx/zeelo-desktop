@@ -64,12 +64,17 @@ jobs:
           Write-Host "Key start: $($env:TAURI_SIGNING_PRIVATE_KEY.Substring(0, [Math]::Min(20, $env:TAURI_SIGNING_PRIVATE_KEY.Length)))"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      - name: Write signing key
+        run: |
+          $key = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+          $key | Out-File -FilePath "$env:USERPROFILE\.tauri\zeelo.key" -Encoding utf8 -NoNewline
+        shell: pwsh
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PATH: ${{ env.USERPROFILE }}\.tauri\zeelo.key
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
