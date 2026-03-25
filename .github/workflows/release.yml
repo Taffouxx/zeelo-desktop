@@ -64,6 +64,8 @@ jobs:
           Write-Host "Key start: $($env:TAURI_SIGNING_PRIVATE_KEY.Substring(0, [Math]::Min(20, $env:TAURI_SIGNING_PRIVATE_KEY.Length)))"
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        shell: pwsh
+
       - name: Write signing key
         run: |
           $key = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
