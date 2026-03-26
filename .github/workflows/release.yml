@@ -85,9 +85,4 @@ jobs:
           releaseName: ${{ github.ref_name }}
           releaseDraft: false
           prerelease: false
-          tauriScript: npm run tauri
-          args: --verbose
-
-      - name: List bundle files
-        run: |
-          Get-ChildItem -Path "src-tauri/target/release/bundle" -Recurse -File | ForEach-Object { Write-Host $_.FullName }
+          tauriScript: npm run tauri -- --verbose
