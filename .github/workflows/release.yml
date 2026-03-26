@@ -66,23 +66,21 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
-      - name: Write signing key
+      - name: Set signing key env
         run: |
-          $dir = "C:\Users\runneradmin\.tauri"
-          if (-not (Test-Path $dir)) { md $dir }
-          $key = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
-          Set-Content -Path "C:\Users\runneradmin\.tauri\zeelo.key" -Value $key -NoNewline
+          $raw = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((Get-Content "C:\Users\runneradmin\.tauri\zeelo.key" -Raw).Trim()))
+          echo "TAURI_SIGNING_PRIVATE_KEY=$raw" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY_PATH: ${{ env.USERPROFILE }}\.tauri\zeelo.key
+          TAURI_SIGNING_PRIVATE_KEY: ${{ env.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: ${{ github.ref_name }}
           releaseDraft: false
           prerelease: false
-          tauriScript: npm run tauri -- --verbose
+          tauriScript: npm run tauri
