@@ -62,14 +62,16 @@ jobs:
         run: |
           Write-Host "Key length: $($env:TAURI_SIGNING_PRIVATE_KEY.Length)"
           Write-Host "Key start: $($env:TAURI_SIGNING_PRIVATE_KEY.Substring(0, [Math]::Min(20, $env:TAURI_SIGNING_PRIVATE_KEY.Length)))"
+        shell: pwsh
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-        shell: pwsh
 
       - name: Write signing key
         run: |
+          $dir = "C:\Users\runneradmin\.tauri"
+          if (-not (Test-Path $dir)) { md $dir }
           $key = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
-          $key | Out-File -FilePath "$env:USERPROFILE\.tauri\zeelo.key" -Encoding utf8 -NoNewline
+          Set-Content -Path "C:\Users\runneradmin\.tauri\zeelo.key" -Value $key -NoNewline
         shell: pwsh
 
       - name: Build Tauri app
