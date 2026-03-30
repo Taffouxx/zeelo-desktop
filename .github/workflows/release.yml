@@ -66,6 +66,14 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
+      - name: Write signing key
+        run: |
+          $dir = "C:\Users\runneradmin\.tauri"
+          if (-not (Test-Path $dir)) { md $dir }
+          $key = "${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
+          Set-Content -Path "C:\Users\runneradmin\.tauri\zeelo.key" -Value $key -NoNewline
+        shell: pwsh
+
       - name: Set signing key env
         run: |
           $raw = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((Get-Content "C:\Users\runneradmin\.tauri\zeelo.key" -Raw).Trim()))
