@@ -76,7 +76,7 @@ jobs:
 
       - name: Set signing key env
         run: |
-          $raw = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((Get-Content "C:\Users\runneradmin\.tauri\zeelo.key" -Raw).Trim()))
+          $raw = Get-Content "C:\Users\runneradmin\.tauri\zeelo.key" -Raw
           echo "TAURI_SIGNING_PRIVATE_KEY=$raw" >> $env:GITHUB_ENV
         shell: pwsh
 
